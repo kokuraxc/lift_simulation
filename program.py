@@ -3,18 +3,21 @@ class Planner:
         self.levels = [Level(i) for i in range(total_storeys)]
         self.carts = [Cart(i) for i in range(total_carts_number)]
 
-    def press_button(self, level, direction):
+    def press_button(self, level_index, direction):
         # TODO turn the light on this level on
-        self.levels[level].direction_indicator[direction] = True
+        self.levels[level_index].direction_indicator[direction] = True
         # TODO call the cart to come
         # This part is the most import logic part
         # it decides which cart to send to the Level if there are more than one cart
         # for now, assume there is only one cart
-        self.carts[0].call_to_level(level, direction)
+
+        # pass the planner object to cart method
+        self.carts[0].call_to_level(self, level_index, direction)
         pass
 
-
 class Cart:
+    """ need to implement the move method with threading
+    so that it won't interfere with other functions """
     def __init__(self, index):
         self.id = index
         self.max_capacity = 15
@@ -24,10 +27,16 @@ class Cart:
         self.current_location = 0
         self.calling_levels[None, [], []]
 
+    def call_to_level(self, planner, level_index, direction):
+        self.call_to_level[direction].append(planner.levels[level_index].position)
+        if self.moving_direction == 0:
+            pass
+
+
 
 class Level:
-    def __init__(self, number):
-        self.number = number
+    def __init__(self, position):
+        self.position = position
         # direction UP: 1, DOWN: -1; 0 is undefined
         self.queues = [None, [], []]
         # index 1: upwards; index -1: downwards; index 0: undefined
@@ -38,11 +47,11 @@ class Level:
 
 
 class Person:
-    def __init__(self, start_level, destination_level, planner):
-        self.start_level = start_level
-        self.destination_level = destination_level
-        self.direction = 1 if destination_level - start_level > 0 else -1
+    def __init__(self, start_level_index, destination_level_index, planner):
+        self.start_level_index = start_level_index
+        self.destination_level_index = destination_level_index
+        self.direction = 1 if destination_level_index - start_level_index > 0 else -1
         self.planner = planner
 
     def press_button(self):
-        self.planner.press_button(self.start_level, self.direction)
+        self.planner.press_button(self.start_level_index, self.direction)
