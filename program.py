@@ -12,14 +12,16 @@ class Planner:
         # for now, assume there is only one cart
 
         # pass the planner object to cart method
-        self.carts[0].call_to_level(self, level_index, direction)
+        self.carts[0].call_to_level(level_index, direction)
         pass
+
 
 class Cart:
     """ need to implement the move method with threading
     so that it won't interfere with other functions """
-    def __init__(self, index):
+    def __init__(self, index, planner):
         self.id = index
+        self.planner = planner
         self.max_capacity = 15
         self.speed = 0.1  # randomly choose this speed, doesn't necessarily reflect actual speed
         self.moving_direction = 0  # 1: upwards, -1: downwards, 0: rest
@@ -27,12 +29,15 @@ class Cart:
         self.current_location = 0
         self.calling_levels[None, [], []]
 
-    def call_to_level(self, planner, level_index, direction):
-        self.call_to_level[direction].append(planner.levels[level_index].position)
+    def call_to_level(self, level_index, direction):
+        self.call_to_level[direction].append(self.planner.levels[level_index].position)
         if self.moving_direction == 0:
-            pass
+            offset = level_index - self.current_location
+            _moving_direction = offset / abs(offset)
+            self.move(_moving_direction)
 
-
+    def move(self, moving_direction):
+        pass
 
 class Level:
     def __init__(self, position):
