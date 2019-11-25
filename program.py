@@ -1,7 +1,7 @@
 class Planner:
     def __init__(self, total_storeys, total_carts_number):
         self.levels = [Level(i) for i in range(total_storeys)]
-        self.carts = [Cart(i) for i in range(total_carts_number)]
+        self.carts = [Cart(i, self) for i in range(total_carts_number)]
 
     def press_button(self, level_index, direction):
         # TODO turn the light on this level on
@@ -12,7 +12,7 @@ class Planner:
         # for now, assume there is only one cart
 
         # pass the planner object to cart method
-        self.carts[0].call_to_level(level_index, direction)
+        self.carts[0].call_to_level(level_index)
         pass
 
 
@@ -27,14 +27,11 @@ class Cart:
         self.moving_direction = 0  # 1: upwards, -1: downwards, 0: rest
         self.destinations = []
         self.current_location = 0
-        self.calling_levels[None, [], []]
+        self.calling_levels = []
 
-    def call_to_level(self, level_index, direction):
-        self.call_to_level[direction].append(self.planner.levels[level_index].position)
-        if self.moving_direction == 0:
-            offset = level_index - self.current_location
-            _moving_direction = offset / abs(offset)
-            self.move(_moving_direction)
+    def call_to_level(self, level_index):
+        if level_index not in self.calling_levels:
+            self.calling_levels.append(level_index)
 
     def move(self, moving_direction):
         pass
