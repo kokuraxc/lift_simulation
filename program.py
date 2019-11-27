@@ -64,7 +64,7 @@ class Cart:
                 self.passengers = [p for p in self.passengers if p.destination_level != self.current_location]
                 print('after passengers get OUT, passenger count:', len(self.passengers))
                 self.pressed_levels.remove(self.current_location)
-            # passengers get in
+            # passengers get in # original direction
             if self.current_location in self.calling_levels:
                 new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
                 for p in new_passengers:
@@ -114,6 +114,7 @@ class Person:
         self.destination_level = destination_level
         self.direction = 1 if destination_level - start_level > 0 else -1
         self.planner = planner
+        self.planner.levels[start_level].person_come(self, self.direction)
         print('New Passenger from', start_level, 'to', destination_level)
         self.press_button_call_cart()
 
