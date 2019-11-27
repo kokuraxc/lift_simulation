@@ -1,3 +1,7 @@
+import threading
+import time
+import logging
+
 class Planner:
     def __init__(self, total_storeys, total_carts_number):
         self.levels = [Level(i) for i in range(total_storeys)]
@@ -25,16 +29,19 @@ class Cart:
         self.max_capacity = 15
         self.speed = 0.1  # randomly choose this speed, doesn't necessarily reflect actual speed
         self.moving_direction = 0  # 1: upwards, -1: downwards, 0: rest
-        self.destinations = []
         self.current_location = 0
-        self.calling_levels = []
+        self.pressed_levels = [] # levels pressed by passengers on board
+        self.calling_levels = [] # levels passed from the planner
+        threading.Thread(target=self.move).start()
 
     def call_to_level(self, level_index):
         if level_index not in self.calling_levels:
             self.calling_levels.append(level_index)
 
-    def move(self, moving_direction):
-        pass
+    def move(self):
+        while True:
+            time.sleep(self.speed)
+        
 
 class Level:
     def __init__(self, position):
