@@ -69,9 +69,20 @@ class Cart:
                 new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
                 for p in new_passengers:
                     p.press_button_destination(self)
-                print('before passengers get IN, passenger count:', len(self.passengers))
+                print('before passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
                 self.passengers += new_passengers
-                print('after passengers get IN, passenger count:', len(self.passengers))
+                print('after passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
+                self.planner.levels[self.current_location].direction_indicator[self.moving_direction] = False
+            if self.current_location in self.calling_levels and len(self.passengers) == 0:
+                self.moving_direction = -self.moving_direction
+                new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
+                for p in new_passengers:
+                    p.press_button_destination(self)
+                print('before passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
+                self.passengers += new_passengers
+                print('after passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
+                self.planner.levels[self.current_location].direction_indicator[self.moving_direction] = False
+            if self.current_location in self.calling_levels and self.planner.levels[self.current_location].direction_indicator[1] == False and self.planner.levels[self.current_location].direction_indicator[-1] == False:
                 self.calling_levels.remove(self.current_location)
             
             # decide whether to move upwards or downwards
