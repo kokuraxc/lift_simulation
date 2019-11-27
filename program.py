@@ -7,16 +7,16 @@ class Planner:
         self.levels = [Level(i) for i in range(total_storeys)]
         self.carts = [Cart(i, self) for i in range(total_carts_number)]
 
-    def press_button(self, level_index, direction):
+    def passenger_calls_cart(self, level, direction):
         # TODO turn the light on this level on
-        self.levels[level_index].direction_indicator[direction] = True
+        self.levels[level].direction_indicator[direction] = True
         # TODO call the cart to come
         # This part is the most import logic part
         # it decides which cart to send to the Level if there are more than one cart
         # for now, assume there is only one cart
 
         # pass the planner object to cart method
-        self.carts[0].call_to_level(level_index)
+        self.carts[0].call_to_level(level)
         pass
 
 
@@ -33,26 +33,35 @@ class Cart:
         self.pressed_levels = [] # levels pressed by passengers on board
         self.calling_levels = [] # levels passed from the planner
         self.passengers = []
+        # start moving the cart when it's initialized
+        # of course, it will remain at the same place if there is no passengers
         threading.Thread(target=self.move).start()
 
-    def call_to_level(self, level_index):
-        if level_index not in self.calling_levels:
-            self.calling_levels.append(level_index)
+    def call_to_level(self, level):
+        if level not in self.calling_levels:
+            self.calling_levels.append(level)
 
     def move(self):
         while True:
             time.sleep(self.speed)
             self.current_location += self.speed * self.moving_direction
+            print('######')
+            print('current direction:', self.moving_direction, '; current location:', self.current_location)
             # passengers get out
             if self.current_location in self.pressed_levels:
+                print('at level', self.current_location)
+                print('before passengers get OUT, passenger count:', len(self.passengers))
                 self.passengers = [p for p in self.passengers if p.destination_level != self.current_location]
+                print('after passengers get OUT, passenger count:', len(self.passengers))
                 self.pressed_levels.remove(self.current_location)
             # passengers get in
             if self.current_location in self.calling_levels:
                 new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
                 for p in new_passengers:
                     p.press_button_destination(self)
+                print('before passengers get IN, passenger count:', len(self.passengers))
                 self.passengers += new_passengers
+                print('after passengers get IN, passenger count:', len(self.passengers))
                 self.calling_levels.remove(self.current_location)
             # decide whether to move upwards or downwards
             all_levels = self.pressed_levels + self.calling_levels
@@ -69,11 +78,6 @@ class Cart:
             else:
                 self.moving_direction = 0
 
-
-
-
-
-        
 
 class Level:
     def __init__(self, position):
@@ -99,10 +103,19 @@ class Person:
         self.destination_level = destination_level
         self.direction = 1 if destination_level - start_level > 0 else -1
         self.planner = planner
+        print('New Passenger from', start_level, 'to', destination_level)
 
     def press_button_call_cart(self):
-        self.planner.press_button(self.start_level, self.direction)
+        self.planner.passenger_calls_cart(self.start_level, self.direction)
     
     def press_button_destination(self, cart):
         if self.destination_level not in cart.pressed_levels and self.destination_level != cart.current_location:
             cart.pressed_levels.append(self.destination_level)
+
+
+if __name__ == '__main__':
+    planner = Planner(5, 1)
+    while True:
+        lvl_from = input()
+        lvl_to = input()
+        Person(lvl_from, lvl_to, planner)
