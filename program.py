@@ -1,6 +1,7 @@
 import threading
 import time
 import logging
+import math
 
 class Planner:
     def __init__(self, total_storeys, total_carts_number):
@@ -45,8 +46,16 @@ class Cart:
         while True:
             time.sleep(self.speed)
             self.current_location += self.speed * self.moving_direction
+            
+            # fix the float number not precise to 0.1 error
+            if abs(self.current_location - math.ceil(self.current_location)) < 0.05:
+                self.current_location = math.ceil(self.current_location)
+            elif abs(self.current_location - math.floor(self.current_location)) < 0.05:
+                self.current_location = math.floor(self.current_location)
+
             if self.moving_direction != 0:
                 print('######')
+            
                 print('current direction:', self.moving_direction, '; current location:', self.current_location)
             # passengers get out
             if self.current_location in self.pressed_levels:
@@ -64,6 +73,7 @@ class Cart:
                 self.passengers += new_passengers
                 print('after passengers get IN, passenger count:', len(self.passengers))
                 self.calling_levels.remove(self.current_location)
+            
             # decide whether to move upwards or downwards
             all_levels = self.pressed_levels + self.calling_levels
             all_levels.sort()
