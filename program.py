@@ -45,8 +45,9 @@ class Cart:
         while True:
             time.sleep(self.speed)
             self.current_location += self.speed * self.moving_direction
-            print('######')
-            print('current direction:', self.moving_direction, '; current location:', self.current_location)
+            if self.moving_direction != 0:
+                print('######')
+                print('current direction:', self.moving_direction, '; current location:', self.current_location)
             # passengers get out
             if self.current_location in self.pressed_levels:
                 print('at level', self.current_location)
@@ -104,6 +105,7 @@ class Person:
         self.direction = 1 if destination_level - start_level > 0 else -1
         self.planner = planner
         print('New Passenger from', start_level, 'to', destination_level)
+        self.press_button_call_cart()
 
     def press_button_call_cart(self):
         self.planner.passenger_calls_cart(self.start_level, self.direction)
@@ -116,6 +118,6 @@ class Person:
 if __name__ == '__main__':
     planner = Planner(5, 1)
     while True:
-        lvl_from = input()
-        lvl_to = input()
+        lvl_from = int(input())
+        lvl_to = int(input())
         Person(lvl_from, lvl_to, planner)
