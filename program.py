@@ -54,7 +54,21 @@ class Cart:
                     p.press_button_destination(self)
                 self.passengers += new_passengers
                 self.calling_levels.remove(self.current_location)
-            
+            # decide whether to move upwards or downwards
+            all_levels = self.pressed_levels + self.calling_levels
+            all_levels.sort()
+            if len(all_levels) > 0:
+                if self.moving_direction == 1 and self.current_location < all_levels[-1]:
+                    pass # keep the same direction: upwards
+                else:
+                    self.moving_direction = -1
+                if self.moving_direction == -1 and self.current_location > all_levels[0]:
+                    pass # keep the same direction: downwards
+                else:
+                    self.moving_direction = 1
+            else:
+                self.moving_direction = 0
+
 
 
 
@@ -90,5 +104,5 @@ class Person:
         self.planner.press_button(self.start_level, self.direction)
     
     def press_button_destination(self, cart):
-        if self.destination_level not in cart.pressed_levels:
+        if self.destination_level not in cart.pressed_levels and self.destination_level != cart.current_location:
             cart.pressed_levels.append(self.destination_level)
