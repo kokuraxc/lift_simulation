@@ -32,6 +32,7 @@ class Cart:
         self.current_location = 0
         self.pressed_levels = [] # levels pressed by passengers on board
         self.calling_levels = [] # levels passed from the planner
+        self.passengers = []
         threading.Thread(target=self.move).start()
 
     def call_to_level(self, level_index):
@@ -41,6 +42,23 @@ class Cart:
     def move(self):
         while True:
             time.sleep(self.speed)
+            self.current_location += self.speed * self.moving_direction
+            # passengers get out
+            if self.current_location in self.pressed_levels:
+                self.passengers = [p for p in self.passengers if p.destination_level != self.current_location]
+                self.pressed_levels.remove(self.current_location)
+            # passengers get in
+            if self.current_location in self.calling_levels:
+                new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
+                for p in new_passengers:
+                    p.press_button_destination(self)
+                self.passengers += new_passengers
+                self.calling_levels.remove(self.current_location)
+            
+
+
+
+
         
 
 class Level:
@@ -54,13 +72,23 @@ class Level:
     def person_come(self, person, direction):
         self.queues[direction].append(person)
 
+    # get all the passengers who want to go the "direction"
+    def get_passengers(self, direction):
+        ret = self.queues[direction]
+        self.queues[direction] = []
+        return ret
+
 
 class Person:
-    def __init__(self, start_level_index, destination_level_index, planner):
-        self.start_level_index = start_level_index
-        self.destination_level_index = destination_level_index
-        self.direction = 1 if destination_level_index - start_level_index > 0 else -1
+    def __init__(self, start_level, destination_level, planner):
+        self.start_level = start_level
+        self.destination_level = destination_level
+        self.direction = 1 if destination_level - start_level > 0 else -1
         self.planner = planner
 
-    def press_button(self):
-        self.planner.press_button(self.start_level_index, self.direction)
+    def press_button_call_cart(self):
+        self.planner.press_button(self.start_level, self.direction)
+    
+    def press_button_destination(self, cart):
+        if self.destination_level not in cart.pressed_levels:
+            cart.pressed_levels.append(self.destination_level)
