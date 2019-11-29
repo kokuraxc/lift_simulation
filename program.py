@@ -46,7 +46,7 @@ class Cart:
         while True:
             time.sleep(self.speed)
             self.current_location += self.speed * self.moving_direction
-            
+
             # fix the float number not precise to 0.1 error
             if abs(self.current_location - math.ceil(self.current_location)) < 0.05:
                 self.current_location = math.ceil(self.current_location)
@@ -55,7 +55,6 @@ class Cart:
 
             if self.moving_direction != 0:
                 print('######')
-            
                 print('current direction:', self.moving_direction, '; current location:', self.current_location)
             # passengers get out
             if self.current_location in self.pressed_levels:
@@ -64,8 +63,23 @@ class Cart:
                 self.passengers = [p for p in self.passengers if p.destination_level != self.current_location]
                 print('after passengers get OUT, passenger count:', len(self.passengers))
                 self.pressed_levels.remove(self.current_location)
-            # passengers get in # original direction
-            if self.current_location in self.calling_levels:
+
+            # passengers get in # cart is not moving
+            if self.current_location in self.calling_levels and len(self.passengers) == 0 and self.moving_direction == 0:
+                new_passengers = self.planner.levels[self.current_location].get_passengers(1) # upwards
+                _direction = 1
+                if len(new_passengers) == 0:
+                    new_passengers = self.planner.levels[self.current_location].get_passengers(-1) # downwards
+                    _direction = -1
+                if len(new_passengers) > 0:
+                    for p in new_passengers:
+                        p.press_button_destination(self)
+                    print('before passengers going', _direction, 'get IN, passenger count:', len(self.passengers))
+                    self.passengers += new_passengers
+                    print('after passengers going', _direction, 'get IN, passenger count:', len(self.passengers))
+                    self.planner.levels[self.current_location].direction_indicator[_direction] = False
+            # passengers get in # original direction # cart is moving
+            elif self.current_location in self.calling_levels:
                 new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
                 for p in new_passengers:
                     p.press_button_destination(self)
@@ -73,7 +87,8 @@ class Cart:
                 self.passengers += new_passengers
                 print('after passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
                 self.planner.levels[self.current_location].direction_indicator[self.moving_direction] = False
-            if self.current_location in self.calling_levels and len(self.passengers) == 0:
+            # passengers get in # original direction # after all other passengers get out
+            if self.current_location in self.calling_levels and len(self.passengers) == 0 and self.moving_direction != 0:
                 self.moving_direction = -self.moving_direction
                 new_passengers = self.planner.levels[self.current_location].get_passengers(self.moving_direction)
                 for p in new_passengers:
@@ -82,9 +97,10 @@ class Cart:
                 self.passengers += new_passengers
                 print('after passengers going', self.moving_direction, 'get IN, passenger count:', len(self.passengers))
                 self.planner.levels[self.current_location].direction_indicator[self.moving_direction] = False
+            
             if self.current_location in self.calling_levels and self.planner.levels[self.current_location].direction_indicator[1] == False and self.planner.levels[self.current_location].direction_indicator[-1] == False:
                 self.calling_levels.remove(self.current_location)
-            
+
             # decide whether to move upwards or downwards
             all_levels = self.pressed_levels + self.calling_levels
             all_levels.sort()
@@ -131,7 +147,7 @@ class Person:
 
     def press_button_call_cart(self):
         self.planner.passenger_calls_cart(self.start_level, self.direction)
-    
+
     def press_button_destination(self, cart):
         if self.destination_level not in cart.pressed_levels and self.destination_level != cart.current_location:
             cart.pressed_levels.append(self.destination_level)
