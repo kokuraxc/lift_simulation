@@ -19,6 +19,9 @@ class Planner:
         # pass the planner object to cart method
         self.carts[0].call_to_level(level)
         pass
+    def stopAll(self):
+        for c in self.carts:
+            c.stop()	
 
 
 class Cart:
@@ -36,14 +39,22 @@ class Cart:
         self.passengers = []
         # start moving the cart when it's initialized
         # of course, it will remain at the same place if there is no passengers
-        threading.Thread(target=self.move).start()
+        self.stop_thread = False
+        self.running_thread = threading.Thread(target=self.move)
+        self.running_thread.start()
 
     def call_to_level(self, level):
         if level not in self.calling_levels:
             self.calling_levels.append(level)
 
+    def stop(self):
+        self.stop_thread = True
+
     def move(self):
         while True:
+            if self.stop_thread:
+            	break
+
             time.sleep(self.speed)
             self.current_location += self.speed * self.moving_direction
 
@@ -154,8 +165,13 @@ class Person:
 
 
 if __name__ == '__main__':
+    stop_threads = False
     planner = Planner(5, 1)
     while True:
-        lvl_from = int(input())
-        lvl_to = int(input())
+        try:
+            lvl_from = int(input())
+            lvl_to = int(input())
+        except:
+            planner.stopAll()
+            break
         Person(lvl_from, lvl_to, planner)
