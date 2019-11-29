@@ -72,6 +72,6 @@ after passengers get OUT, passenger count: 0
 
 ## Further development
 
-1. The Cart's `move()` function can be optimized, now there are lots of repeated code.
-2. Add more planner logic to handle the situation when there are more than 1 lift.
-3. To end the program with `Ctrl + C`. (End the threading.)
+- [ ] The Cart's `move()` function can be optimized, now there are lots of repeated code.
+- [ ] Add more planner logic to handle the situation when there are more than 1 lift.
+- [x] To end the program with `Ctrl + C`. (End the threading.)
