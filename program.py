@@ -64,6 +64,9 @@ class Cart:
             elif abs(self.current_location - math.floor(self.current_location)) < 0.05:
                 self.current_location = math.floor(self.current_location)
 
+            if self.current_location in self.pressed_levels or self.current_location in self.calling_levels:
+                print('^^^^ pressed levels:', self.pressed_levels, 'calling levels:', self.calling_levels)
+
             if self.moving_direction != 0:
                 print('######')
                 print('current direction:', self.moving_direction, '; current location:', self.current_location)
@@ -176,7 +179,6 @@ if __name__ == '__main__':
             break
         Person(lvl_from, lvl_to, planner) """
     time.sleep(1)
-    Person(2, 0, planner)
-    time.sleep(1)
     Person(3, 4, planner)
-    
+    time.sleep(1)
+    Person(2, 0, planner)
