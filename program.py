@@ -167,11 +167,16 @@ class Person:
 if __name__ == '__main__':
     stop_threads = False
     planner = Planner(5, 1)
-    while True:
+    """ while True:
         try:
             lvl_from = int(input())
             lvl_to = int(input())
         except:
             planner.stopAll()
             break
-        Person(lvl_from, lvl_to, planner)
+        Person(lvl_from, lvl_to, planner) """
+    time.sleep(1)
+    Person(2, 0, planner)
+    time.sleep(1)
+    Person(3, 4, planner)
+    
