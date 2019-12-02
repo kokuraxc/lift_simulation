@@ -17,7 +17,7 @@ class Planner:
         # for now, assume there is only one cart
 
         # pass the planner object to cart method
-        self.carts[0].call_to_level(level)
+        self.carts[0].call_to_level(level, direction)
         pass
     def stopAll(self):
         for c in self.carts:
@@ -37,20 +37,50 @@ class Cart:
         self.pressed_levels = [] # levels pressed by passengers on board
         self.calling_levels = [] # levels passed from the planner
         self.passengers = []
+        self.cur_destination = None
         # start moving the cart when it's initialized
         # of course, it will remain at the same place if there is no passengers
         self.stop_thread = False
         self.running_thread = threading.Thread(target=self.move)
         self.running_thread.start()
 
-    def call_to_level(self, level):
-        if level not in self.calling_levels:
-            self.calling_levels.append(level)
+    def call_to_level(self, level, direction):
+        if (level, direction) not in self.calling_levels:
+            self.calling_levels.append((level, direction))
 
     def stop(self):
         self.stop_thread = True
 
     def move(self):
+        while True:
+            if self.stop_thread:
+                break
+        
+            time.sleep(self.speed)
+            self.current_location += self.speed * self.moving_direction
+
+            # fix the float number not precise to 0.1 error
+            if abs(self.current_location - math.ceil(self.current_location)) < 0.05:
+                self.current_location = math.ceil(self.current_location)
+            elif abs(self.current_location - math.floor(self.current_location)) < 0.05:
+                self.current_location = math.floor(self.current_location)
+            
+            # skip it when the cart is in between levels
+            if self.current_location % 1 != 0:
+                continue
+
+            # passengers get out
+            self.passengers = [p for p in self.passengers if p.destination_level != self.current_location]
+
+
+
+            # first check if reached cur_destination
+            if self.cur_destination != None and self.current_location == self.cur_destination:
+                if self.cur_destination = None
+
+
+    # the original implmentation, with the bug.
+    def move2(self):
         while True:
             if self.stop_thread:
             	break
